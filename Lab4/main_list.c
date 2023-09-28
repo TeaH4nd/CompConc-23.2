@@ -2,9 +2,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "list_int.h"
 #include <pthread.h>
-#include "timer.h"
+
+#include "listLib/list_int.h"
+#include "helpers/timer.h"
 
 #define QTDE_OPS 10000000 // quantidade de operacoes sobre a lista (insercao, remocao, consulta)
 #define QTDE_INI 100      // quantidade de insercoes iniciais na lista
