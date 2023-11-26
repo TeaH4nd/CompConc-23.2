@@ -4,8 +4,8 @@ import os
 import concurrent.futures
 
 ZIPS_PATH = os.path.join(os.path.dirname(__file__), 'zips')
-EXTRCONC_PATH = os.path.join(os.path.dirname(__file__), 'extraido_concorrente')
-EXTRSEQU_PATH = os.path.join(os.path.dirname(__file__), 'extraido_sequencial')
+EXTRCONC_PATH = os.path.join(os.path.dirname(__file__), 'extraido', 'concorrente')
+EXTRSEQU_PATH = os.path.join(os.path.dirname(__file__), 'extraido', 'sequencial')
 
 def decompress_zip(zip_file_path, extract_folder):
     try:
@@ -59,4 +59,4 @@ if __name__ == '__main__':
         for root, dirs, files in os.walk(ZIPS_PATH):
             for file in files:
                 if file.endswith('zip'):
-                    concurrent_extraction(os.path.join(root, file), EXTRCONC_PATH)
+                    concurrent_extraction(os.path.join(root, file), EXTRCONC_PATH, N)
