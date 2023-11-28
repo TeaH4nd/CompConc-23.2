@@ -1,4 +1,4 @@
-import sys
+import shutil
 import time
 import os
 import argparse
@@ -15,7 +15,7 @@ EXTRSEQU_PATH = os.path.join(EXTRACT_PATH, 'sequencial')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog="unzip")
-    parser.add_argument("n_threads")
+    parser.add_argument("n_threads", help="Number of threads or processes to use")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-t", "--threads", action="store_true", help="Use threads instead of processes")
     group.add_argument("-p", "--process", action="store_true", help="Use processes instead of threads")
@@ -30,19 +30,27 @@ if __name__ == '__main__':
         for file in files:
             if file.endswith('zip'):
                 start_file = time.time()
-                os.makedirs(os.path.join(EXTRCONC_PATH, file[:-4]), exist_ok=True)
+                extr_dir_conc = os.path.join(EXTRCONC_PATH, file[:-4])
+                os.makedirs(extr_dir_conc, exist_ok=True)
                 if args.threads:
-                    concurrent_extraction(os.path.join(root, file), EXTRCONC_PATH, N, "thread")
+                    print(f'Usando threads para descomprimir: {file}')   
+                    concurrent_extraction(os.path.join(root, file), extr_dir_conc, N, "thread")
                 elif args.process:
-                    concurrent_extraction(os.path.join(root, file), EXTRCONC_PATH, N, "process")
+                    print(f'Usando processos para descomprimir: {file}')
+                    concurrent_extraction(os.path.join(root, file), extr_dir_conc, N, "process")
                 end_file = time.time()
-                print(f'Tempo para descompressao do arquivo: {file} ({N} threads)')
+                if args.threads:
+                    print(f'Tempo para descompressao do arquivo: {file} ({N} threads)')
+                elif args.process:
+                    print(f'Tempo para descompressao do arquivo: {file} ({N} processos)')
                 print(f'\t{end_file - start_file} seconds\n')
         for file in files:
             if file.endswith('zip'):
                 start_file = time.time()
-                os.makedirs(os.path.join(EXTRSEQU_PATH, file[:-4]), exist_ok=True)
-                sequential_extraction(os.path.join(root, file), EXTRSEQU_PATH)
+                extr_dir_seq = os.path.join(EXTRSEQU_PATH, file[:-4])
+                os.makedirs(extr_dir_seq, exist_ok=True)
+                print(f'Descomprimindo sequencialmente: {file}')
+                sequential_extraction(os.path.join(root, file), extr_dir_seq)
                 end_file = time.time()
                 print(f'Tempo para descompressao do arquivo: {file} (sequencial)')
                 print(f'\t{end_file - start_file} seconds\n')
@@ -51,4 +59,4 @@ if __name__ == '__main__':
     if not del_dir:
         del_dir = 'n'
     if del_dir == ('y' or 'Y'):
-        os.rmdir(EXTRACT_PATH)
+        shutil.rmtree(EXTRACT_PATH)
