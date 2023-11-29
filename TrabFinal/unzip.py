@@ -29,9 +29,9 @@ if __name__ == '__main__':
     for root, dirs, files in os.walk(ZIPS_PATH):
         for file in files:
             if file.endswith('zip'):
-                start_file = time.time()
                 extr_dir_conc = os.path.join(EXTRCONC_PATH, file[:-4])
                 os.makedirs(extr_dir_conc, exist_ok=True)
+                start_file = time.time()
                 if args.threads:
                     print(f'Usando threads para descomprimir: {file}')   
                     concurrent_extraction(os.path.join(root, file), extr_dir_conc, N, "thread")
