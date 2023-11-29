@@ -37,25 +37,10 @@ def concurrent_extraction(zip_file, extract_folder, n_threads, executor_type="th
                 file_iterator = iter(file_names)
 
                 # Submit initial batch of tasks
-                extraction_tasks = {
-                    executor.submit(extract_file, zip_file, file_name, extract_folder, executor_type): file_name
-                    for file_name in file_iterator
-                }
+                extraction_tasks = [executor.submit(extract_file, zip_file, file_name, extract_folder, executor_type) for file_name in file_iterator]
 
-                # Continue submitting tasks as files finish
-                for future in concurrent.futures.as_completed(extraction_tasks):
-                    file_name = extraction_tasks[future]
-                    try:
-                        future.result()  # Get the result to check for exceptions
-                        # print(f"Thread {threading.current_thread().name}: Finished extracting '{file_name}'.")
-                    except Exception as e:
-                        print(f"Thread {threading.current_thread().name}: An error occurred while processing '{zip_file}/{file_name}': {e}")
-
-                    # Submit a new task for the next file
-                    new_file_name = next(file_iterator, None)
-                    if new_file_name:
-                        print(f"Thread {threading.current_thread().name}: Assigned new file '{new_file_name}'.")
-                        extraction_tasks[executor.submit(extract_file, zip_file, new_file_name, extract_folder)] = new_file_name
+                for future in extraction_tasks:
+                    future.result()
 
     except zipfile.BadZipFile:
         print(f"Thread {threading.current_thread().name}: Error: '{zip_file}' is not a valid ZIP file.")
