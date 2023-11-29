@@ -3,6 +3,7 @@ import time
 import os
 import argparse
 
+from helpers.printDict import printDict
 from helpers.concurrent_unzip import concurrent_extraction
 from helpers.sequencial_unzip import sequential_extraction
 
@@ -22,6 +23,14 @@ if __name__ == '__main__':
     
     args = parser.parse_args()
 
+    files_dict = {}
+    times_dict = {}
+    times_dict['sequential'] = {}
+    if args.threads:
+        times_dict['threads'] = {}
+    elif args.process:
+        times_dict['processes'] = {}
+
     N = int(args.n_threads)
     # Ensure the extraction folder exists, create it if necessary
     os.makedirs(EXTRCONC_PATH, exist_ok=True)
@@ -29,7 +38,9 @@ if __name__ == '__main__':
     for root, dirs, files in os.walk(ZIPS_PATH):
         for file in files:
             if file.endswith('zip'):
-                extr_dir_conc = os.path.join(EXTRCONC_PATH, file[:-4])
+                file_name = file[:-4]
+                files_dict[file_name] = 0
+                extr_dir_conc = os.path.join(EXTRCONC_PATH, file_name)
                 os.makedirs(extr_dir_conc, exist_ok=True)
                 start_file = time.time()
                 if args.threads:
@@ -44,16 +55,26 @@ if __name__ == '__main__':
                 elif args.process:
                     print(f'Tempo para descompressao do arquivo: {file} ({N} processos)')
                 print(f'\t{end_file - start_file} seconds\n')
+                files_dict[file_name] = end_file - start_file
+        if args.threads:
+            times_dict['threads'] = files_dict.copy()
+        elif args.process:
+            times_dict['processes'] = files_dict.copy()
+        files_dict = {}
         for file in files:
             if file.endswith('zip'):
                 start_file = time.time()
-                extr_dir_seq = os.path.join(EXTRSEQU_PATH, file[:-4])
+                extr_dir_seq = os.path.join(EXTRSEQU_PATH, file_name)
                 os.makedirs(extr_dir_seq, exist_ok=True)
                 print(f'Descomprimindo sequencialmente: {file}')
                 sequential_extraction(os.path.join(root, file), extr_dir_seq)
                 end_file = time.time()
                 print(f'Tempo para descompressao do arquivo: {file} (sequencial)')
                 print(f'\t{end_file - start_file} seconds\n')
+                files_dict[file_name] = end_file - start_file
+        times_dict['sequential'] = files_dict.copy()
+
+    printDict(times_dict)
 
     del_dir = input('Deletar pastas extraidas? (y/N)')
     if not del_dir:
