@@ -25,11 +25,11 @@ if __name__ == '__main__':
 
     files_dict = {}
     times_dict = {}
-    times_dict['sequential'] = {}
+    times_dict['Sequencial'] = {}
     if args.threads:
-        times_dict['threads'] = {}
+        times_dict['Threads'] = {}
     elif args.process:
-        times_dict['processes'] = {}
+        times_dict['Processos'] = {}
 
     N = int(args.n_threads)
     # Ensure the extraction folder exists, create it if necessary
@@ -55,14 +55,15 @@ if __name__ == '__main__':
                 elif args.process:
                     print(f'Tempo para descompressao do arquivo: {file} ({N} processos)')
                 print(f'\t{end_file - start_file} seconds\n')
-                files_dict[file_name] = end_file - start_file
+                files_dict[file_name] = format(end_file - start_file, '.3f')
         if args.threads:
-            times_dict['threads'] = files_dict.copy()
+            times_dict['Threads'] = files_dict.copy()
         elif args.process:
-            times_dict['processes'] = files_dict.copy()
+            times_dict['Processos'] = files_dict.copy()
         files_dict = {}
         for file in files:
             if file.endswith('zip'):
+                file_name = file[:-4]
                 start_file = time.time()
                 extr_dir_seq = os.path.join(EXTRSEQU_PATH, file_name)
                 os.makedirs(extr_dir_seq, exist_ok=True)
@@ -71,8 +72,8 @@ if __name__ == '__main__':
                 end_file = time.time()
                 print(f'Tempo para descompressao do arquivo: {file} (sequencial)')
                 print(f'\t{end_file - start_file} seconds\n')
-                files_dict[file_name] = end_file - start_file
-        times_dict['sequential'] = files_dict.copy()
+                files_dict[file_name] = format(end_file - start_file, '.3f')
+        times_dict['Sequencial'] = files_dict.copy()
 
     printDict(times_dict)
 
